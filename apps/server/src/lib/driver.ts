@@ -1,12 +1,14 @@
-import { Builder, By, Key, WebDriver, until } from "selenium-webdriver";
+import { Builder, By, WebDriver, until } from "selenium-webdriver";
 import * as Chrome from "selenium-webdriver/chrome";
-
 
 /**
  * ถ้าไม่มีคิวต่อ จะเล่นเพลงเอง
  */
 export class YoutubeDriver {
     private driver!: WebDriver;
+    /**
+     * Mirror of all items in current yt playlist 
+     */
     songNames: string[] = []
     initialized = false
     isMiniplayer = true
@@ -31,6 +33,8 @@ export class YoutubeDriver {
 
         await this.delay(1000) // make uBlock origin work properly
         await this.driver.get('https://youtube.com')
+
+        this.registerAdsFallback()
 
         this.initialized = true
     }
@@ -145,6 +149,10 @@ export class YoutubeDriver {
 
     onSongChanged(callback: (name: string) => void) {
         this.onSongChangedListener.push(callback)
+    }
+
+    private registerAdsFallback() {
+        // TODO
     }
 
 }
