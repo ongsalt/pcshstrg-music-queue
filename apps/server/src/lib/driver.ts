@@ -7,17 +7,20 @@ import * as Chrome from "selenium-webdriver/chrome";
  */
 export class YoutubeDriver {
     private driver!: WebDriver;
-    initialized = false
     songNames: string[] = []
+    initialized = false
     isMiniplayer = true
     isPlaying = false
 
     private onSongChangedListener: ((name: string) => void)[] = []
 
     async init() {
+        if (this.initialized) {
+            throw new Error('Youtube driver is already initialized')
+        }
         // Load uBlock origin
         const options = new Chrome.Options()
-            .addExtensions('static/ublock.crx')
+            .addExtensions('resources/ublock.crx')
 
         this.driver = await new Builder()
             .forBrowser('chrome')

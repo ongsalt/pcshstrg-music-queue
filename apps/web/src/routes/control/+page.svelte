@@ -36,7 +36,7 @@
     กลับ
 </button>
 
-<h1 class="text-center font-bold text-2xl mt-4">Devtools</h1>
+<h1 class="text-center font-bold text-2xl mt-4">Test</h1>
 
 <div class="border rounded-md p-4 mt-4">
     <Input type="text" bind:value={search} placeholder="ASU - リンカーネイション"/>
