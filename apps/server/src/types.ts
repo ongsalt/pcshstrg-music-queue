@@ -24,15 +24,14 @@ export interface TimePeriod {
 }
 
 export interface Config {
-    enable: boolean,
+    enableAutostart: boolean,
     autostart: TimePeriod[],
     googleSheetId: string,
     googleFormUrl: string
 }
 
 /**
- * Inactive: cant do anything unless
- * Prepared: can only receive song request -> might be rarely used
+ * Inactive: cant do anything
  * Active: can receive song request and play it
  */
-export type AppState = "inactive" | "prepared" | "active"
+export type AppState = "inactive" | "active"

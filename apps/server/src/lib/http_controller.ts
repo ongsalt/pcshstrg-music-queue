@@ -35,11 +35,11 @@ export class HttpController {
         const router = new Hono()
             .use('/*', cors())
             .post('/play', async c => {
-                await this.mutex.runExclusive(() => this.yt.play())
+                await this.yt.play()
                 return c.text('ok')
             })
             .post('/pause', async c => {
-                await this.mutex.runExclusive(() => this.yt.pause())
+                await this.yt.pause()
                 return c.text('ok')
             })
             .post(
@@ -53,11 +53,7 @@ export class HttpController {
                 ),
                 async c => {
                     const song = c.req.valid('json')
-                    // await this.mutex.runExclusive(() =>
-                    //     this.yt.searchAndAddToQueue(song.name)
-                    // )
                     await this.yt.searchAndAddToQueue(song.name)
-
                     return c.text('ok')
                 }
             )
