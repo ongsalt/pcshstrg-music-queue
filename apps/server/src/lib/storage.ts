@@ -19,7 +19,8 @@ export class ConfigStorage {
                 }
             }],
             enable: true,
-            googleSheetId: '12'
+            googleSheetId: '12',
+            googleFormUrl: ''
         }
     }
     
@@ -28,7 +29,8 @@ export class ConfigStorage {
         this.config = {
             autostart: [],
             enable: true,
-            googleSheetId: '12'
+            googleSheetId: '12',
+            googleFormUrl: ''
         }
     }
 

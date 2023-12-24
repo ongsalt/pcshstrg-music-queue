@@ -26,7 +26,8 @@ export interface TimePeriod {
 export interface Config {
     enable: boolean,
     autostart: TimePeriod[],
-    googleSheetId: string
+    googleSheetId: string,
+    googleFormUrl: string
 }
 
 /**
