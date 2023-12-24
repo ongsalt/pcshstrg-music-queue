@@ -1,18 +1,23 @@
 import { Builder, By, WebDriver, until } from "selenium-webdriver";
 import * as Chrome from "selenium-webdriver/chrome";
+import { Logger } from "./logger";
+import chalk from "chalk";
 
 /**
  * ถ้าไม่มีคิวต่อ จะเล่นเพลงเอง
  */
 export class YoutubeDriver {
+    
     private driver!: WebDriver;
     /**
      * Mirror of all items in current yt playlist 
-     */
-    songNames: string[] = []
-    initialized = false
-    isMiniplayer = true
-    isPlaying = false
+    */
+   songNames: string[] = []
+   initialized = false
+   isMiniplayer = true
+   isPlaying = false
+
+   private logger: Logger = new Logger('YoutubeDriver', 'red')
 
     private onSongChangedListener: ((name: string) => void)[] = []
 
@@ -20,6 +25,7 @@ export class YoutubeDriver {
         if (this.initialized) {
             throw new Error('Youtube driver is already initialized')
         }
+        this.logger.log("Initializing...")
         // Load uBlock origin
         const options = new Chrome.Options()
             .addExtensions('resources/ublock.crx')
@@ -42,6 +48,7 @@ export class YoutubeDriver {
     async destroy() {
         await this.driver.close()
         this.initialized = false
+        this.logger.log("Destroy")
     }
 
     async delay(ms: number = 1000, noiseRange = 100) {
@@ -55,6 +62,8 @@ export class YoutubeDriver {
 
     async searchAndAddToQueue(text: string) {
         // Search
+        this.logger.log(`Searching for ${chalk.underline(chalk.bold(text))}.`)
+
         const searchbox = await this.driver.findElement(By.css('input#search'))
         await searchbox.clear()
         await searchbox.sendKeys(text)
@@ -76,6 +85,8 @@ export class YoutubeDriver {
         // Add current song names to songNames
         const songName = await videoLink.findElement(By.css('a#video-title')).getText()
         this.songNames.push(songName)
+
+        this.logger.log(`Added ${chalk.underline(chalk.bold(songName))} to queue.`)
 
         await this.delay(1500)
     }

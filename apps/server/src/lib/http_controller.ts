@@ -7,17 +7,22 @@ import { cors } from 'hono/cors'
 import { YoutubeDriver } from './driver'
 import { Logger } from './logger'
 import { ServerType } from '@hono/node-server/dist/types'
+import { Application } from './app'
 
 export class HttpController {
-    private logger: Logger
-    private server: ServerType | undefined;
-    router!: Hono;
+    public mutex: Mutex
+    public yt: YoutubeDriver
 
-    constructor(public mutex: Mutex, public yt: YoutubeDriver) {
-        this.logger = new Logger('HttpController')
+    private logger: Logger = new Logger('HttpController')
+    private server: ServerType | undefined;
+    private router!: Hono;
+
+    constructor(private app: Application) {
+        this.mutex = app.ytMutex
+        this.yt = app.yt
 
         // Fix Later
-        this.logger.log("Registering route...");
+        // this.logger.log("Registering route...");
         this.registerRoutes()
         this.registerWebsocket()
     }
@@ -48,9 +53,11 @@ export class HttpController {
                 ),
                 async c => {
                     const song = c.req.valid('json')
-                    await this.mutex.runExclusive(() =>
-                        this.yt.searchAndAddToQueue(song.name)
-                    )
+                    // await this.mutex.runExclusive(() =>
+                    //     this.yt.searchAndAddToQueue(song.name)
+                    // )
+                    await this.yt.searchAndAddToQueue(song.name)
+
                     return c.text('ok')
                 }
             )
@@ -66,6 +73,7 @@ export class HttpController {
     }
 
     start({ port }: { port: number }) {
+        this.logger.log("Server is started")
         this.server = serve({
             fetch: this.router.fetch,
             port
@@ -74,6 +82,7 @@ export class HttpController {
 
     stop() {
         this.server?.close()
+        this.logger.log("Server is closing...")
     }
 }
 

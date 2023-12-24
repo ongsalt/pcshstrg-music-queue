@@ -1,12 +1,13 @@
 <script lang="ts">
-  import "../app.css";
   import "@fontsource/inter";
   import "@fontsource/poppins";
-  import Playlist from "./Playlist.svelte";
   import { onNavigate } from "$app/navigation";
+  import Playlist from "./Playlist.svelte";
+  import "../app.css";
 
   let pageContainer: HTMLDivElement;
 
+  // For view transition
   onNavigate((navigation) => {
     // @ts-ignore
     if (!document.startViewTransition) return;
