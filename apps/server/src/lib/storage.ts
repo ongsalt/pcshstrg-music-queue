@@ -18,7 +18,7 @@ export class ConfigStorage {
                     minute: 50
                 }
             }],
-            enable: true,
+            enableAutostart: true,
             googleSheetId: '12',
             googleFormUrl: ''
         }
@@ -28,7 +28,7 @@ export class ConfigStorage {
         // Fucking read it some how
         this.config = {
             autostart: [],
-            enable: true,
+            enableAutostart: true,
             googleSheetId: '12',
             googleFormUrl: ''
         }

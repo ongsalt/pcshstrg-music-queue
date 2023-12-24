@@ -1,7 +1,11 @@
 <script lang="ts">
   import { formatMinutes } from "$lib/format";
   import type { Song } from "$lib/interfaces";
+    import { cn } from "$lib/utils";
   import Icon from "@iconify/svelte";
+
+  let className = ""
+  export { className as class };
 
   const songs: Song[] = [];
 
@@ -15,7 +19,7 @@
   }
 </script>
 
-<div class="bg-secondary border-l [view-transition-name:playlist]">
+<div class={cn("[view-transition-name:playlist] flex flex-col", className)}>
   <div class="stick border-b px-4 h-12 flex justify-between items-center">
     <h2 class="textlgl font-bold">ลำดับเพลง</h2>
     <div class="flex">
@@ -27,7 +31,7 @@
       </button>
     </div>
   </div>
-  <div class="overflow-y-auto h-[calc(100vh_-_3rem)]">
+  <div class="overflow-y-auto flex-1">
     <div class="px-2 my-4 space-y-1">
       <div
         class="flex justify-between items-center bg-primary text-primary-foreground shadow-md p-2 rounded-md"
