@@ -3,7 +3,7 @@
     import Input from "$lib/components/ui/input/input.svelte";
     import { rpc } from "$lib/rpc";
 
-    let search: string;
+    let search: string = "ASU - リンカーネイション";
 
     async function add() {
         console.log("sending");
@@ -39,7 +39,7 @@
 <h1 class="text-center font-bold text-2xl mt-4">Test</h1>
 
 <div class="border rounded-md p-4 mt-4">
-    <Input type="text" bind:value={search} placeholder="ASU - リンカーネイション"/>
+    <Input type="text" bind:value={search} placeholder="Search..."/>
     <Button on:click={add}>Add to queue</Button>
     <Button on:click={play}>Play</Button>
     <Button on:click={pause}>Pause</Button>
