@@ -10,7 +10,12 @@ export interface Song {
     /**
      * Song requested time
      */
-    createdAt: Date 
+    createdAt: Date,
+    /**
+     * Video that is maded for kid can't be play in miniplayer mode
+     * It need some special consideration
+     */
+    madeForKid: boolean
 }
 
 export interface Time {

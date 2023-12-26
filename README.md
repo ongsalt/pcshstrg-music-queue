@@ -9,6 +9,10 @@ Run the following command:
 npm i
 ```
 
+Go to `apps/server/resources` then find a file name `ublock.crx`.
+Extract it with (crxextracter)[https://crxextractor.com] then put it in `apps/server/resources/ublock`.
+You should have `apps/server/resources/ublock/package.json` there.
+
 
 ## What's inside?
 

@@ -1,5 +1,6 @@
-import { Builder, By, WebDriver, until } from "selenium-webdriver";
-import * as Chrome from "selenium-webdriver/chrome";
+import puppeteer, { Browser, Page } from 'puppeteer';
+import path from 'path';
+
 import { Logger } from "./logger";
 import chalk from "chalk";
 
@@ -7,83 +8,97 @@ import chalk from "chalk";
  * ถ้าไม่มีคิวต่อ จะเล่นเพลงเอง
  */
 export class YoutubeDriver {
-    
-    private driver!: WebDriver;
+
+    private browser!: Browser
+    private page!: Page
     /**
      * Mirror of all items in current yt playlist 
     */
-   songNames: string[] = []
-   initialized = false
-   isMiniplayer = true
-   isPlaying = false
 
-   private logger: Logger = new Logger('YoutubeDriver', 'red')
+    toAddSongs: string[] = []
+    songNames: string[] = []
+
+    playing: string | undefined // Not implemented yet
+    isKidMode: boolean = false
+    initialized = false
+    isMiniplayer = true
+    isPlaying = false
+
+    private logger: Logger = new Logger('Youtubepage', 'red')
 
     private onSongChangedListener: ((name: string) => void)[] = []
 
     async init() {
         if (this.initialized) {
-            throw new Error('Youtube driver is already initialized')
+            throw new Error('Youtube page is already initialized')
         }
         this.logger.log("Initializing...")
+
+        const pathToExtension = path.join(process.cwd(), 'resources/ublock');
         // Load uBlock origin
-        const options = new Chrome.Options()
-            .addExtensions('resources/ublock.crx')
+        this.browser = await puppeteer.launch({
+            headless: false,
+            args: [
+                `--disable-extensions-except=${pathToExtension}`,
+                `--load-extension=${pathToExtension}`,
+            ],
+            ignoreDefaultArgs: [
+                '--disable-extensions'
+            ],
+            timeout: 120000 // 2 Minutes
+        })
 
-        this.driver = await new Builder()
-            .forBrowser('chrome')
-            .setChromeOptions(options)
-            .build();
+        await this.delay(5000) // To make ublock work porperly
 
-        await this.driver.manage().setTimeouts({ implicit: 2000 });
+        this.page = await this.browser.newPage();
 
-        await this.delay(1000) // make uBlock origin work properly
-        await this.driver.get('https://youtube.com')
+        await this.page.goto('https://youtube.com')
+        await this.page.waitForNetworkIdle()
 
         this.registerAdsFallback()
 
+        this.logger.log("Done")
         this.initialized = true
     }
-    
+
     async destroy() {
-        await this.driver.close()
+        await this.browser.close();
         this.initialized = false
         this.logger.log("Destroy")
     }
 
     async delay(ms: number = 1000, noiseRange = 100) {
         const totalDelay = ms + Math.random() * noiseRange
-        await this.driver.sleep(totalDelay)
+        await new Promise(r => setTimeout(r, totalDelay));
     }
 
     async waitUntilSPAPageLoaded() {
-        await this.driver.wait(until.elementLocated(By.css('yt-page-navigation-progress[aria-valuenow="100"]')))
+        await this.page.waitForSelector('yt-page-navigation-progress[aria-valuenow="100"]')
+        this.logger.log('SPAPageLoaded')
     }
 
     async searchAndAddToQueue(text: string) {
         // Search
         this.logger.log(`Searching for ${chalk.underline(chalk.bold(text))}.`)
 
-        const searchbox = await this.driver.findElement(By.css('input#search'))
-        await searchbox.clear()
-        await searchbox.sendKeys(text)
+        await this.page.locator('input#search').fill(text)
+
         await this.delay(200)
-        await this.driver.findElement(By.id('search-icon-legacy')).click()
+
+        await this.page.locator('button#search-icon-legacy').click()
+        this.logger.log('Clicked search')
 
         await this.waitUntilSPAPageLoaded()
+        await this.delay(100)
 
         // Click 'menu' then 'add to queue'
-        const videoLink = await this.driver.findElement(By.css('ytd-video-renderer'))
-        const videoMenuButton = await videoLink.findElement(By.css('#button'))
-        await this.delay(100) // yt will lag for abit before showing the menu
-        await videoMenuButton.click()
+        await this.page.locator('ytd-video-renderer #button').click()
 
-        // Find 'Add to queue' button
-        const addToQueueButton = await this.driver.findElement(By.css('ytd-menu-service-item-renderer'))
-        await addToQueueButton.click()
+        // Click 'Add to queue' button
+        await this.page.locator('ytd-menu-service-item-renderer').click()
 
         // Add current song names to songNames
-        const songName = await videoLink.findElement(By.css('a#video-title')).getText()
+        const songName = (await this.page.locator('ytd-video-renderer a#video-title').wait()).text
         this.songNames.push(songName)
 
         this.logger.log(`Added ${chalk.underline(chalk.bold(songName))} to queue.`)
@@ -91,19 +106,44 @@ export class YoutubeDriver {
         await this.delay(1500)
     }
 
+    private async flushQueue() {
+
+    }
+
     /**
     * When the video end it will be replay button
     */
     async playOrPause() {
         this.isPlaying = !this.isPlaying
-        await this.delay(100)
-        await this.driver.findElement(By.css('button.ytp-play-button')).click()
+        // await this.delay(100)
+        await this.page.locator('button.ytp-play-button').click()
     }
 
     async play() {
         if (!this.isPlaying) {
-            await this.playOrPause()
+            // If yt show #blocking-container -> It is Kids mode 
+            // We need to wait for it to end before we can do anything again or else the video will be interupt
+            try {
+                // This will turn off miniplayer mode
+                await this.page.locator('#blocking-container').click()
+                this.isMiniplayer = false
+
+                this.isKidMode = true
+                // turn off autoplay if there is something in queue
+                // Wait until this video end then mute before we do search and add other song (We can still pause)
+                // page.waitUntil should be enough as this will block any other page operation 
+
+                // Click LARGE play button
+                this.page.locator('.ytp-large-play-button').click()
+
+            } catch {
+                // Ok yt did allow us
+                await this.playOrPause()
+            }
         }
+
+        await this.playOrPause()
+        // This is how we attach event listener to page
     }
 
     async pause() {
@@ -115,42 +155,56 @@ export class YoutubeDriver {
     async maximize() {
         if (this.isMiniplayer) {
             this.isMiniplayer = false
-            await this.delay(100)
-            await this.driver.findElement(By.css('button.ytp-miniplayer-expand-watch-page-button')).click()
+            // await this.delay(100)
+            await this.page.locator('button.ytp-miniplayer-expand-watch-page-button').click()
         } else {
             console.log("Already maximized")
         }
     }
-    
+
     async minimize() {
         if (!this.isMiniplayer) {
             this.isMiniplayer = true
-            await this.delay(100)
-            await this.driver.findElement(By.css('button.ytp-button[data-title-no-tooltip="Miniplayer"]')).click()
+            // await this.delay(100)
+            await this.page.locator('button.ytp-button[data-title-no-tooltip="Miniplayer"]').click()
         } else {
             console.log("Already minimized")
         }
     }
 
     async waitUntilVideoLoaded() {
-        this.delay(200)
-        await this.driver.wait(until.elementsLocated(By.css('video.video-stream')))
+        // this.delay(200)
+        await this.page.locator('video.video-stream').wait()
     }
 
     async waitUntilVideoEnd() {
-        this.delay(200)
-        const currentElement = await this.driver.findElement(By.css('span.ytp-time-current'))
+        let resolve!: () => void;
 
-        const duration = await this.getDuration()
-        await this.driver.wait(until.elementTextIs(currentElement, duration))
+        const promise = new Promise<void>(res => {
+            return (resolve = res);
+        });
+
+        await this.page.exposeFunction('onVideoEnded', () => {
+            resolve()
+        })
+
+        await this.page.evaluate(() => {
+            const videoElement = document.querySelector('video.video-stream')
+            videoElement!.addEventListener('ended', () => {
+                // @ts-ignore This is the name of function we just exposed 
+                window.onVideoEnded()
+            })
+        })
+
+        await promise
     }
 
     async getDuration() {
         this.delay(100)
-        const durationElement = await this.driver.findElement(By.css('span.ytp-time-duration'))
-        // const currentElement = await this.driver.findElement(By.css('span.ytp-time-current'))
+        const durationElement = await this.page.locator('span.ytp-time-duration').wait()
+        // const currentElement = await this.page.findElement(By.css('span.ytp-time-current'))
 
-        const duration = await durationElement.getText()
+        const duration = durationElement.textContent
         console.log(duration)
         // console.log(await currentElement.getText())
 

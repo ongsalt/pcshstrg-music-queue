@@ -6,5 +6,6 @@
     "moduleResolution": "Node",
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
+    "allowSyntheticDefaultImports": true
   }
 }
