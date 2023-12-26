@@ -1,7 +1,7 @@
-import { Application } from "./lib/app";
+import { serve } from '@hono/node-server'
+import { Hono } from 'hono'
 
-const app = new Application()
+const app = new Hono()
+app.get('/', (c) => c.text('Hello Hono!'))
 
-await app.init()
-
-export type RPC = ReturnType<typeof app.httpController.registerRoutes>
+serve(app)
