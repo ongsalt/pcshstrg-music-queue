@@ -2,7 +2,7 @@
   "name": "relay",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts --clear-screen=false", 
+    "dev": "tsx watch --clear-screen=false src/index.ts", 
     "test": "vitest"
   },
   "dependencies": {
