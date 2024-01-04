@@ -24,7 +24,7 @@ export class YoutubeDriver {
     isMiniplayer = true
     isPlaying = false
 
-    private logger: Logger = new Logger('Youtubepage', 'red')
+    private logger: Logger = new Logger('YoutubeDriver', 'red')
 
     private onSongChangedListener: ((name: string) => void)[] = []
 
@@ -52,8 +52,11 @@ export class YoutubeDriver {
 
         this.page = await this.browser.newPage();
 
-        await this.page.goto('https://youtube.com')
-        await this.page.waitForNetworkIdle()
+        // Need some error handlling
+        await this.page.goto('https://youtube.com', {
+            waitUntil: 'networkidle2',
+            timeout: 60000 // 1 min
+        })
 
         this.registerAdsFallback()
 
@@ -74,7 +77,7 @@ export class YoutubeDriver {
 
     async waitUntilSPAPageLoaded() {
         await this.page.waitForSelector('yt-page-navigation-progress[aria-valuenow="100"]')
-        this.logger.log('SPAPageLoaded')
+        // this.logger.log('SPAPageLoaded')
     }
 
     async searchAndAddToQueue(text: string) {
@@ -86,7 +89,7 @@ export class YoutubeDriver {
         await this.delay(200)
 
         await this.page.locator('button#search-icon-legacy').click()
-        this.logger.log('Clicked search')
+        // this.logger.log('Clicked search')
 
         await this.waitUntilSPAPageLoaded()
         await this.delay(100)
@@ -97,13 +100,19 @@ export class YoutubeDriver {
         // Click 'Add to queue' button
         await this.page.locator('ytd-menu-service-item-renderer').click()
 
+        await this.delay(350)
+
         // Add current song names to songNames
-        const songName = (await this.page.locator('ytd-video-renderer a#video-title').wait()).text
+        // const songNameEl = await this.page.waitForSelector('ytd-video-renderer a#video-title')
+        const songName = await this.page.locator('ytd-video-renderer a#video-title').map(it => it.textContent?.trim()).wait() ?? 'Unknown song'
+
+        // console.log(songNameEl)
+        // const songName = songNameEl?.evaluate('')
         this.songNames.push(songName)
 
         this.logger.log(`Added ${chalk.underline(chalk.bold(songName))} to queue.`)
 
-        await this.delay(1500)
+        await this.delay(250)
     }
 
     private async flushQueue() {
@@ -115,31 +124,33 @@ export class YoutubeDriver {
     */
     async playOrPause() {
         this.isPlaying = !this.isPlaying
-        // await this.delay(100)
+        await this.delay(100)
         await this.page.locator('button.ytp-play-button').click()
     }
 
     async play() {
         if (!this.isPlaying) {
+            await this.playOrPause()
+
             // If yt show #blocking-container -> It is Kids mode 
             // We need to wait for it to end before we can do anything again or else the video will be interupt
-            try {
-                // This will turn off miniplayer mode
-                await this.page.locator('#blocking-container').click()
-                this.isMiniplayer = false
+            // try {
+            //     // This will turn off miniplayer mode
+            //     await this.page.locator('#blocking-container').click()
+            //     this.isMiniplayer = false
 
-                this.isKidMode = true
-                // turn off autoplay if there is something in queue
-                // Wait until this video end then mute before we do search and add other song (We can still pause)
-                // page.waitUntil should be enough as this will block any other page operation 
+            //     this.isKidMode = true
+            //     // turn off autoplay if there is something in queue
+            //     // Wait until this video end then mute before we do search and add other song (We can still pause)
+            //     // page.waitUntil should be enough as this will block any other page operation 
 
-                // Click LARGE play button
-                this.page.locator('.ytp-large-play-button').click()
+            //     // Click LARGE play button
+            //     this.page.locator('.ytp-large-play-button').click()
 
-            } catch {
-                // Ok yt did allow us
-                await this.playOrPause()
-            }
+            // } catch {
+            //     // Ok yt did allow us
+            //     await this.playOrPause()
+            // }
         }
 
         await this.playOrPause()
@@ -155,7 +166,7 @@ export class YoutubeDriver {
     async maximize() {
         if (this.isMiniplayer) {
             this.isMiniplayer = false
-            // await this.delay(100)
+            await this.delay(100)
             await this.page.locator('button.ytp-miniplayer-expand-watch-page-button').click()
         } else {
             console.log("Already maximized")
@@ -165,7 +176,7 @@ export class YoutubeDriver {
     async minimize() {
         if (!this.isMiniplayer) {
             this.isMiniplayer = true
-            // await this.delay(100)
+            await this.delay(100)
             await this.page.locator('button.ytp-button[data-title-no-tooltip="Miniplayer"]').click()
         } else {
             console.log("Already minimized")

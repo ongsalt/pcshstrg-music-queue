@@ -3,7 +3,7 @@ import { Mutex } from "async-mutex";
 /**
  * Wrap method call with Mutex.runExclusive 
  */
-export function withMutex<T extends Object>(obj: T, mutex: Mutex): T {
+export function withMutex<T extends Object>(obj: T, mutex: Mutex = new Mutex()): T {
     return new Proxy(obj, {
         get(target, prop, receiver) {
             // Check if this is a call from proxy then refirect 'this' to original one
