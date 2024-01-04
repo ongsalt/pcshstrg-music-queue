@@ -1,4 +1,7 @@
+import { configDotenv } from "dotenv";
 import { Application } from "./lib/app";
+
+configDotenv()
 
 const app = new Application()
 

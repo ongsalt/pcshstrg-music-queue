@@ -4,6 +4,7 @@ import { YoutubeDriver } from "./driver";
 import { Logger } from "./logger";
 import { AppState } from "../types";
 import { withMutex } from "./mutex";
+import { WsController } from "./ws_controller";
 
 /**
  * Handle autostart(system, timing), wire everything together
@@ -22,6 +23,7 @@ export class Application {
 
     logger: Logger = new Logger('Application', 'blue')
     httpController: HttpController
+    wsController: WsController
     yt: YoutubeDriver
     ytMutex: Mutex
 
@@ -29,6 +31,7 @@ export class Application {
         this.ytMutex = new Mutex()
         this.yt = withMutex(new YoutubeDriver(), this.ytMutex)
         this.httpController = new HttpController(this)
+        this.wsController = new WsController(this)
     }
 
     /**
@@ -42,13 +45,14 @@ export class Application {
         }
 
         this.httpController.start({ port })
-        await this.start()
+        await this.wsController.start()
+        await this.startYt()
     }
 
     /**
      * Lifecycle method
     */
-    async start() {
+    async startYt() {
         if (this.isOn) {
             return
         }

@@ -1,7 +1,7 @@
 import chalk, { ChalkInstance, ColorName } from 'chalk'
 
 export class Logger {
-    static enabled = false
+    static enabled = true
     static logFunction: (...params: unknown[]) => void = console.log
     private colored: ChalkInstance
     constructor(public prefix: string, color: ColorName = 'green') {

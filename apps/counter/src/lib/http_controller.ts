@@ -2,7 +2,6 @@ import { serve } from '@hono/node-server'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { Mutex } from 'async-mutex'
 import { cors } from 'hono/cors'
 import { YoutubeDriver } from './driver'
 import { Logger } from './logger'
@@ -10,7 +9,6 @@ import { ServerType } from '@hono/node-server/dist/types'
 import { Application } from './app'
 
 export class HttpController {
-    public mutex: Mutex
     public yt: YoutubeDriver
 
     private logger: Logger = new Logger('HttpController')
@@ -18,13 +16,11 @@ export class HttpController {
     private router!: Hono;
 
     constructor(private app: Application) {
-        this.mutex = app.ytMutex
         this.yt = app.yt
 
         // Fix Later
         // this.logger.log("Registering route...");
         this.registerRoutes()
-        this.registerWebsocket()
     }
 
     /**
@@ -59,13 +55,6 @@ export class HttpController {
             )
         this.router = router
         return router
-    }
-
-    /**
-     * Alternative API to REST. Use with command parser
-     */
-    registerWebsocket() {
-
     }
 
     start({ port }: { port: number }) {
