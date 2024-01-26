@@ -32,10 +32,7 @@
 </div>
 
 <div class="flex items-center justify-between rounded-md mt-8 p-4 border">
-    <div class="flex-1 flex items-center gap-2">
-        <div class="w-2 h-2 bg-green-500 rounded-full" />
-        <Label for="enable" class="">เปิดใช้งาน</Label>
-    </div>
+    <Label for="enable" class="">เปิดใช้งาน</Label>
     <Switch id="enable" bind:checked={doEnable} />
 </div>
 
@@ -94,6 +91,12 @@
 
 <div class="flex-1" />
 
-<a class="text-sm underline underline-offset-4" href="/about">
-    Made with 😭 from AV team
-</a>
+<div class="flex items-center justify-between gap-2">
+    <a class="text-sm underline underline-offset-4" href="/about">
+        Made with 😭 from AV team
+    </a>
+    <div class="flex items-center gap-2">
+        <div class="w-2 h-2 bg-green-500 rounded-full" />
+        <Label for="enable" class="text-sm">คอมเคาน์เตอร์เปิดอยู่</Label>
+    </div>
+</div>

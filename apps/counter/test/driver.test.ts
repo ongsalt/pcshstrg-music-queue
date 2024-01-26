@@ -10,8 +10,8 @@ test('YoutubeDriver', async () => {
   // await Promise.all([
 
   await yt.searchAndAddToQueue('บินหลาดง')
-  await yt.searchAndAddToQueue('มาเฟียพนมเปญ')
-  // await yt.searchAndAddToQueue('queencard')
+  await yt.play()
+  await yt.searchAndAddToQueue('queencard')
   await yt.searchAndAddToQueue('ฉันจะไปละหมาด')
   await yt.searchAndAddToQueue('หนุ่มฟ้อ')
   await yt.searchAndAddToQueue('ไอแดงมันเป็นนักสู้')

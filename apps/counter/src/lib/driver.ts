@@ -117,11 +117,7 @@ export class YoutubeDriver {
         //     madeForKid = true
         // }
 
-        // if (!this.hasQueue) {
-        //     await this.playInNormalMode()
-        // } else {
         // Click 'menu' then 'add to queue'
-        // const menu = this.page.locator('ytd-video-renderer #button.yt-icon-button')
         const menu = await this.page.waitForSelector('ytd-video-renderer #button.yt-icon-button')
         // it click other thing when i dont do this
         await menu?.hover()
@@ -148,6 +144,8 @@ export class YoutubeDriver {
 
         await this.delay(250)
 
+
+        // Idk why but youtube will misbehave unless i add this
         if (!this.hasQueue) {
             await this.maximize()
             this.hasQueue = true

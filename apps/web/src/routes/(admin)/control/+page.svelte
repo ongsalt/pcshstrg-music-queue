@@ -1,31 +1,30 @@
 <script lang="ts">
     import Button from "$lib/components/ui/button/button.svelte";
     import Input from "$lib/components/ui/input/input.svelte";
-    import { rpc } from "$lib/rpc";
 
     let search: string = "ASU - リンカーネイション";
 
     async function add() {
         console.log("sending");
-        const res = await rpc.add.$post({
-            json: {
-                createdAt: new Date(),
-                name: search,
-            },
-        });
-        console.log(await res.text());
+        // const res = await rpc.add.$post({
+        //     json: {
+        //         createdAt: new Date(),
+        //         name: search,
+        //     },
+        // });
+        // console.log(await res.text());
     }
 
     async function play() {
         console.log("sending");
-        const res = await rpc.play.$post();
-        console.log(await res.text());
+        // const res = await rpc.play.$post();
+        // console.log(await res.text());
     }
 
     async function pause() {
         console.log("sending");
-        const res = await rpc.pause.$post();
-        console.log(await res.text());
+        // const res = await rpc.pause.$post();
+        // console.log(await res.text());
     }
 </script>
 
