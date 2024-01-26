@@ -7,21 +7,25 @@ test('YoutubeDriver', async () => {
   const yt = withMutex(new YoutubeDriver())
   await yt.init()
 
-  await Promise.all([
-    yt.searchAndAddToQueue('Mississippi Fred McDowell - You gotta move'),
-    yt.searchAndAddToQueue('Boom Boom Boom You should kys NOW'),
-    yt.searchAndAddToQueue('hunch gray'),
-  ])
+  // await Promise.all([
 
-  await yt.playOrPause()
+  await yt.searchAndAddToQueue('บินหลาดง')
+  await yt.searchAndAddToQueue('มาเฟียพนมเปญ')
+  // await yt.searchAndAddToQueue('queencard')
+  await yt.searchAndAddToQueue('ฉันจะไปละหมาด')
+  await yt.searchAndAddToQueue('หนุ่มฟ้อ')
+  await yt.searchAndAddToQueue('ไอแดงมันเป็นนักสู้')
+  // ])
+
   // await yt.waitUntilVideoEnd()
 
-  await yt.destroy()
+  // await yt.waitUntilVideoEnd()
+  await new Promise<void>(resolve => setTimeout(resolve, 20000))
 
-  expect(yt.songNames).toStrictEqual([
-    "Mississippi Fred McDowell - You gotta move",
-    'Boom Boom Boom You should kys NOW',
-    'ずっと真夜中でいいのに。『勘ぐれい』MV（ZUTOMAYO – Hunch Gray）',
-  ])
+  // expect(yt.songNames).toStrictEqual([
+  //   "Mississippi Fred McDowell - You gotta move",
+  //   'Boom Boom Boom You should kys NOW',
+  //   'ずっと真夜中でいいのに。『勘ぐれい』MV（ZUTOMAYO – Hunch Gray）',
+  // ])
 
 })

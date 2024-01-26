@@ -44,9 +44,11 @@ export class Application {
             return
         }
 
-        this.httpController.start({ port })
-        await this.wsController.start()
-        await this.startYt()
+        this.httpController.start({ port }),
+        await Promise.all([
+            this.wsController.start(),
+            this.startYt()
+        ])
     }
 
     /**

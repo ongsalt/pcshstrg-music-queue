@@ -1,8 +1,8 @@
 export interface Song {
     /**
-     * Title that got parsed from youtube 
+     * Title that got parsed from youtube
      */
-    ytTitle?: string,
+    ytTitle: string,
     /**
      * Can be either search query or video url
      */
@@ -10,7 +10,7 @@ export interface Song {
     /**
      * Song requested time
      */
-    createdAt: Date,
+    requestedAt?: Date,
     /**
      * Video that is maded for kid can't be play in miniplayer mode
      * It need some special consideration
@@ -40,3 +40,5 @@ export interface Config {
  * Active: can receive song request and play it
  */
 export type AppState = "inactive" | "active"
+
+export type MayBePromise<T> = T | Promise<T>
