@@ -180,8 +180,11 @@ export class YoutubeDriver {
         // this.page.evaluate(() => {
         //     document.dispatchEvent(new KeyboardEvent('keydown', { 'key': 'k' }));
         // })
-
-        await this.page.locator('button.ytp-play-button.ytp-button').click()
+        try {
+            await this.page.locator('button.ytp-play-button.ytp-button').setTimeout(100).click()
+        } catch {
+            await this.page.keyboard.press('k')
+        }
     }
 
     // Need to autocorrect itself

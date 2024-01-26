@@ -27,5 +27,5 @@ test('Relay server', async () => {
         type: 'play'
     })
 
-    // expect([res, res2]).toBe(['ok', 'ok'])
+    expect([res, res2]).toStrictEqual(['ok', 'ok'])
 })

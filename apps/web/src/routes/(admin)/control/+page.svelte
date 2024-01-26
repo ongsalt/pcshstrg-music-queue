@@ -1,31 +1,10 @@
 <script lang="ts">
+    import { enhance } from "$app/forms";
     import Button from "$lib/components/ui/button/button.svelte";
     import Input from "$lib/components/ui/input/input.svelte";
 
     let search: string = "ASU - リンカーネイション";
 
-    async function add() {
-        console.log("sending");
-        // const res = await rpc.add.$post({
-        //     json: {
-        //         createdAt: new Date(),
-        //         name: search,
-        //     },
-        // });
-        // console.log(await res.text());
-    }
-
-    async function play() {
-        console.log("sending");
-        // const res = await rpc.play.$post();
-        // console.log(await res.text());
-    }
-
-    async function pause() {
-        console.log("sending");
-        // const res = await rpc.pause.$post();
-        // console.log(await res.text());
-    }
 </script>
 
 <button
@@ -37,9 +16,11 @@
 
 <h1 class="text-center font-bold text-2xl mt-4">Test</h1>
 
-<div class="border rounded-md p-4 mt-4">
-    <Input type="text" bind:value={search} placeholder="Search..."/>
-    <Button on:click={add}>Add to queue</Button>
-    <Button on:click={play}>Play</Button>
-    <Button on:click={pause}>Pause</Button>
-</div>
+<form method="post" action="?/add" use:enhance>
+    <div class="border rounded-md p-4 mt-4">
+        <Input name="search" type="text" bind:value={search} placeholder="Search..." />
+        <Button type="submit">Add to queue</Button>
+        <Button type="submit" formaction="?/play">Play</Button>
+        <Button type="submit" formaction="?/pause">Pause</Button>
+    </div>
+</form>

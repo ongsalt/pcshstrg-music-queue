@@ -45,6 +45,9 @@ export class WsController {
                     case 'pause':
                         await this.app.yt.pause()
                         break
+                    default :
+                        callback('unknow command')
+                        return
                 }
                 callback('ok')
             } catch (e: unknown) {
